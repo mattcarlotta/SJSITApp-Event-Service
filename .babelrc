@@ -1,0 +1,28 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "database": "./database",
+          "libs": "./libs",
+          "loggers": "./loggers",
+          "models": "./models",
+          "middlewares": "./middlewares",
+          "shared": "./shared",
+          "utils": "./utils"
+        }
+      }
+    ]
+  ]
+}
