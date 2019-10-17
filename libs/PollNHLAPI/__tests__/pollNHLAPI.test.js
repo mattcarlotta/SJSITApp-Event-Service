@@ -6,33 +6,57 @@ import data from "../__mocks__/libs.mocks";
 
 const format = "YYYY-MM-DD";
 
+const eventSpy = jest.spyOn(Event, "insertMany");
+const formSpy = jest.spyOn(Form, "create");
+
 describe("Poll NHL API Service", () => {
   let db;
+  let startMonth;
+  let endMonth;
   beforeAll(() => {
     db = connectDatabase();
+    startMonth = moment()
+      .add(1, "month")
+      .startOf("month")
+      .format(format);
+    endMonth = moment()
+      .add(1, "month")
+      .endOf("month")
+      .format(format);
+  });
+
+  beforeEach(() => {
+    mockAxios.reset();
   });
 
   afterEach(() => {
-    mockAxios.reset();
+    eventSpy.mockClear();
+    formSpy.mockClear();
   });
 
   afterAll(async () => {
     await db.close();
+    eventSpy.mockRestore();
+    formSpy.mockRestore();
     mockAxios.restore();
   });
 
-  it("handles polling Events documents", async () => {
-    const eventSpy = jest.spyOn(Event, "insertMany");
-    const formSpy = jest.spyOn(Form, "create");
-    const startMonth = moment()
-      .add(1, "month")
-      .startOf("month")
-      .format(format);
-    const endMonth = moment()
-      .add(1, "month")
-      .endOf("month")
-      .format(format);
+  it("handles unsuccessful polling NHL API", async () => {
+    mockAxios
+      .onGet(`schedule?teamId=28&startDate=${startMonth}&endDate=${endMonth}`)
+      .reply(200);
 
+    await pollNHLAPI();
+
+    expect(eventSpy).toHaveBeenCalledTimes(0);
+    expect(formSpy).toHaveBeenCalledTimes(0);
+
+    expect(console.log.mock.calls[0]).toContain(
+      "Unable to retrieve next month's game schedule.",
+    );
+  });
+
+  it("handles successful polling NHL API", async () => {
     mockAxios
       .onGet(`schedule?teamId=28&startDate=${startMonth}&endDate=${endMonth}`)
       .reply(200, data);
@@ -72,7 +96,7 @@ describe("Poll NHL API Service", () => {
       }),
     );
 
-    expect(console.log).toHaveBeenCalledWith(eventLogger([1]));
-    expect(console.log).toHaveBeenCalledWith(formLogger(1));
+    expect(console.log.mock.calls[0]).toContain(eventLogger([1]));
+    expect(console.log.mock.calls[1]).toContain(formLogger(1));
   });
 });
