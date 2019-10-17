@@ -1,3 +1,3 @@
 /* istanbul ignore file */
-
-export { default as createEvents } from "./CreateEvents";
+/* eslint-disable */
+export { default as pollNHLAPI } from "./PollNHLAPI";

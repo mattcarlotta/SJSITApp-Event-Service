@@ -1,14 +1,20 @@
 import "middlewares";
 import { scheduleJob } from "node-schedule";
 import { initiatedLogger } from "loggers";
-import { createEvents } from "libs";
+import { pollNHLAPI } from "libs";
 
 //= ===========================================================//
 // CREATE POLLING SERVICES                                     //
 //= ===========================================================//
 
-scheduleJob("59 7 1 * *", async () => {
+// scheduleJob("*/5 * * * * *", async () => {
+//   console.log(initiatedLogger());
+//
+//   await pollNHLAPI();
+// });
+
+scheduleJob("59 7 26 * *", async () => {
   console.log(initiatedLogger());
 
-  await createEvents();
+  await pollNHLAPI();
 });
