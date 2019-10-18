@@ -1,7 +1,7 @@
-import moment from "moment";
 import { pollNHLAPI } from "libs";
 import { eventLogger, formLogger } from "loggers";
 import { Event, Form } from "models";
+import { getEndOfNextMonth, getStartOfNextMonth } from "shared/helpers";
 import data from "../__mocks__/libs.mocks";
 
 const format = "YYYY-MM-DD";
@@ -15,14 +15,8 @@ describe("Poll NHL API Service", () => {
   let endMonth;
   beforeAll(() => {
     db = connectDatabase();
-    startMonth = moment()
-      .add(1, "month")
-      .startOf("month")
-      .format(format);
-    endMonth = moment()
-      .add(1, "month")
-      .endOf("month")
-      .format(format);
+    startMonth = getStartOfNextMonth().format(format);
+    endMonth = getEndOfNextMonth().format(format);
   });
 
   beforeEach(() => {

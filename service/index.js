@@ -13,7 +13,7 @@ import { pollNHLAPI } from "libs";
 //   await pollNHLAPI();
 // });
 
-scheduleJob("59 7 26 * *", async () => {
+scheduleJob("59 7 20 * *", async () => {
   console.log(initiatedLogger());
 
   await pollNHLAPI();

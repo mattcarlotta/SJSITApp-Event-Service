@@ -2,7 +2,12 @@ import moment from "moment";
 import get from "lodash/get";
 import { eventLogger, formLogger } from "loggers";
 import { Event, Form, Season } from "models";
-import { convertDateToISO, createSchedule } from "shared/helpers";
+import {
+  convertDateToISO,
+  createSchedule,
+  getEndOfNextMonth,
+  getStartOfNextMonth,
+} from "shared/helpers";
 import nhlAPI from "utils/axiosConfig";
 
 const format = "YYYY-MM-DD";
@@ -12,18 +17,11 @@ export default async () => {
   let createdForms = 0;
   try {
     // start of next month
-    const startMonth = moment()
-      .add(1, "month")
-      .startOf("month");
-
+    const startMonth = getStartOfNextMonth();
     const formattedStartMonth = startMonth.format(format);
 
     // end of next month
-    const endMonth = moment()
-      .add(1, "month")
-      .endOf("month");
-
-    const formattedEndMonth = endMonth.format(format);
+    const endMonth = getEndOfNextMonth();
 
     // locate season that encapulates next month
     const existingSeason = await Season.findOne(
@@ -40,7 +38,9 @@ export default async () => {
 
     // fetch Sharks schedule for next month from stats.nhl.com
     const res = await nhlAPI.get(
-      `schedule?teamId=28&startDate=${formattedStartMonth}&endDate=${formattedEndMonth}`,
+      `schedule?teamId=28&startDate=${formattedStartMonth}&endDate=${endMonth.format(
+        format,
+      )}`,
     );
 
     const dates = get(res, ["data", "dates"]);
