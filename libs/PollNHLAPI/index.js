@@ -83,6 +83,7 @@ export default async () => {
           schedule: createSchedule(callTimes),
           seasonId,
           team,
+          notes: "",
         });
       }
     });
@@ -91,10 +92,10 @@ export default async () => {
 
     // const today = moment().format();
 
-    // const firstOfNextMonth = moment()
-    //   .add(1, "month")
-    //   .startOf("month")
-    //   .format();
+    const firstOfNextMonth = moment()
+      .add(1, "month")
+      .startOf("month")
+      .format();
 
     await Form.create({
       seasonId,
@@ -106,10 +107,7 @@ export default async () => {
         .add(14, "days")
         .endOf("day")
         .format(),
-      sendEmailNotificationsDate: moment()
-        .add(1, "month")
-        .startOf("month")
-        .format(),
+      sendEmailNotificationsDate: firstOfNextMonth,
       notes: "",
     });
 

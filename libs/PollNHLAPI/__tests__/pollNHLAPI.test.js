@@ -75,6 +75,7 @@ describe("Poll NHL API Service", () => {
           ]),
           seasonId: expect.any(String),
           team: expect.any(String),
+          notes: expect.any(String),
         }),
       ]),
     );
@@ -87,6 +88,7 @@ describe("Poll NHL API Service", () => {
         endMonth: expect.any(String),
         expirationDate: expect.any(String),
         sendEmailNotificationsDate: expect.any(String),
+        notes: expect.any(String),
       }),
     );
 
