@@ -1,7 +1,7 @@
 import { pollNHLAPI } from "libs";
 import { eventLogger, formLogger } from "loggers";
 import { Event, Form } from "models";
-import { getEndOfNextMonth, getStartOfNextMonth } from "shared/helpers";
+import { getEndOfMonth, getStartOfNextMonth } from "shared/helpers";
 import data from "../__mocks__/libs.mocks";
 
 const format = "YYYY-MM-DD";
@@ -16,7 +16,7 @@ describe("Poll NHL API Service", () => {
   beforeAll(() => {
     db = connectDatabase();
     startMonth = getStartOfNextMonth().format(format);
-    endMonth = getEndOfNextMonth().format(format);
+    endMonth = getEndOfMonth(startMonth).format(format);
   });
 
   beforeEach(() => {

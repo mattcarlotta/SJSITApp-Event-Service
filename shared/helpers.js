@@ -37,9 +37,7 @@ const getCurrentYear = () => moment().startOf("year");
  * @function getStartOfNextMonth
  * @returns {Date}
  */
-const getEndOfNextMonth = () => moment()
-  .add(2, "months")
-  .endOf("month");
+const getEndOfMonth = date => moment(date).endOf("month");
 
 /**
  * Helper function to get a Date of current year.
@@ -65,7 +63,7 @@ export {
   convertDateToISO,
   createSchedule,
   getCurrentYear,
-  getEndOfNextMonth,
+  getEndOfMonth,
   getNextYear,
   getStartOfNextMonth,
 };

@@ -5,7 +5,7 @@ import { Event, Form, Season } from "models";
 import {
   convertDateToISO,
   createSchedule,
-  getEndOfNextMonth,
+  getEndOfMonth,
   getStartOfNextMonth,
 } from "shared/helpers";
 import nhlAPI from "utils/axiosConfig";
@@ -18,10 +18,13 @@ export default async () => {
   try {
     // start of next month
     const startMonth = getStartOfNextMonth();
+
+    // const startMonth = moment();
+
     const formattedStartMonth = startMonth.format(format);
 
     // end of next month
-    const endMonth = getEndOfNextMonth();
+    const endMonth = getEndOfMonth(startMonth);
 
     // locate season that encapulates next month
     const existingSeason = await Season.findOne(
@@ -86,6 +89,13 @@ export default async () => {
 
     await Event.insertMany(events);
 
+    // const today = moment().format();
+
+    // const firstOfNextMonth = moment()
+    //   .add(1, "month")
+    //   .startOf("month")
+    //   .format();
+
     await Form.create({
       seasonId,
       startMonth: startMonth.format(),
@@ -100,6 +110,7 @@ export default async () => {
         .add(1, "month")
         .startOf("month")
         .format(),
+      notes: "",
     });
 
     createdForms = 1;
