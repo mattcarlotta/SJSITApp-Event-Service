@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 
 /**
  * Helper function to convert a Date to an ISO Date.
@@ -32,9 +32,9 @@ const createSchedule = callTimes => callTimes.map(time => ({
 const getCurrentYear = () => moment().startOf("year");
 
 /**
- * Helper function to get a start month Date 2 months from now.
+ * Helper function to get a end month date.
  *
- * @function getStartOfNextMonth
+ * @function getEndOfMonth
  * @returns {Date}
  */
 const getEndOfMonth = date => moment(date).endOf("month");
@@ -48,6 +48,14 @@ const getEndOfMonth = date => moment(date).endOf("month");
 const getNextYear = () => moment()
   .add(1, "year")
   .endOf("year");
+
+/**
+ * Helper function to get a start month date from now.
+ *
+ * @function getStartOfMonth
+ * @returns {Date}
+ */
+const getStartOfMonth = () => moment().startOf("month");
 
 /**
  * Helper function to get a start month Date 2 months from now.
@@ -65,5 +73,6 @@ export {
   getCurrentYear,
   getEndOfMonth,
   getNextYear,
+  getStartOfMonth,
   getStartOfNextMonth,
 };

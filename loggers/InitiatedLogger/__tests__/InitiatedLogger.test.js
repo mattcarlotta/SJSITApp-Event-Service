@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import moment from "moment";
+import moment from "moment-timezone";
 import { initiatedLogger } from "loggers";
 
 describe("Initiated Logger", () => {

@@ -1,5 +1,5 @@
 import { pollNHLAPI } from "libs";
-import { eventLogger, formLogger } from "loggers";
+import { errorLogger, eventLogger, formLogger } from "loggers";
 import { Event, Form } from "models";
 import { getEndOfMonth, getStartOfNextMonth } from "shared/helpers";
 import data from "../__mocks__/libs.mocks";
@@ -37,7 +37,9 @@ describe("Poll NHL API Service", () => {
 
   it("handles unsuccessful polling NHL API", async () => {
     mockAxios
-      .onGet(`schedule?teamId=28&startDate=${startMonth}&endDate=${endMonth}`)
+      .onGet(`schedule?teamId=28&startDate=${startMonth}&endDate=${endMonth}`, {
+        data: {},
+      })
       .reply(200);
 
     await pollNHLAPI();
@@ -46,7 +48,7 @@ describe("Poll NHL API Service", () => {
     expect(formSpy).toHaveBeenCalledTimes(0);
 
     expect(console.log.mock.calls[0]).toContain(
-      "Unable to retrieve next month's game schedule.",
+      errorLogger("Unable to retrieve next month's game schedule."),
     );
   });
 

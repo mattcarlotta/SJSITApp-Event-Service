@@ -1,4 +1,3 @@
-import moment from "moment";
 import { connectDatabase } from "database";
 import { Season } from "models";
 import { getCurrentYear, getNextYear } from "shared/helpers";

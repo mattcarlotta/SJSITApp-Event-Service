@@ -1,36 +1,33 @@
 import moment from "moment-timezone";
 import get from "lodash/get";
-import { errorLogger, eventLogger, formLogger } from "loggers";
+import { connectDatabase } from "database";
 import { Event, Form, Season } from "models";
-import {
-  createSchedule,
-  getEndOfMonth,
-  getStartOfNextMonth,
-} from "shared/helpers";
+import { createSchedule, getStartOfMonth, getEndOfMonth } from "shared/helpers";
 import nhlAPI from "utils/axiosConfig";
 
 const format = "YYYY-MM-DD";
 
-export default async () => {
+(async () => {
+  const db = connectDatabase();
   const events = [];
-  let createdForms = 0;
   try {
-    // start of next month
-    const startMonth = getStartOfNextMonth();
-
-    // testing current month
-    // const startMonth = moment().startOf("month");
-
-    const formattedStartMonth = startMonth.format(format);
-
-    // end of next month
+    // start of current month
+    const startMonth = getStartOfMonth();
     const endMonth = getEndOfMonth(startMonth);
+    const startOfNextMonth = moment()
+      .add(1, "months")
+      .startOf("month");
+    const endOfNextMonth = getEndOfMonth(startOfNextMonth);
+
+    // stringified months
+    const beginOfMonth = startMonth.format(format);
+    const endNextMonth = endOfNextMonth.format(format);
 
     // locate season that encapulates next month
     const existingSeason = await Season.findOne(
       {
-        startDate: { $lte: formattedStartMonth },
-        endDate: { $gte: formattedStartMonth },
+        startDate: { $lte: beginOfMonth },
+        endDate: { $gte: beginOfMonth },
       },
       { seasonId: 1 },
     );
@@ -41,9 +38,7 @@ export default async () => {
 
     // fetch Sharks schedule for next month from stats.nhl.com
     const res = await nhlAPI.get(
-      `schedule?teamId=28&startDate=${formattedStartMonth}&endDate=${endMonth.format(
-        format,
-      )}`,
+      `schedule?teamId=28&startDate=${beginOfMonth}&endDate=${endNextMonth}`,
     );
 
     const dates = get(res, ["data", "dates"]);
@@ -58,7 +53,11 @@ export default async () => {
 
       // if they're at home...
       if (isHomeGame) {
-        const { gameDate, venue, teams } = isHomeGame;
+        const {
+          gameDate,
+          venue: { name: location },
+          teams,
+        } = isHomeGame;
 
         // get team and opponent names
         const team = get(teams, ["home", "team", "name"]);
@@ -74,7 +73,7 @@ export default async () => {
         // store results in accumulator
         events.push({
           eventType: "Game",
-          location: venue.name,
+          location,
           callTimes,
           eventDate: gameDate,
           opponent,
@@ -88,43 +87,48 @@ export default async () => {
 
     await Event.insertMany(events);
 
-    // testing current month dates
-    // const sendEmailNotificationsDate = moment().format();
-    // const expirationDate = moment()
-    //   .startOf("month")
-    //   .add(6, "days")
-    //   .endOf("day")
-    //   .format();
-
-    // set A/P form expiration date 7 days from the 1st
-    const expirationDate = moment()
-      .add(1, "month")
-      .startOf("month")
-      .add(6, "days")
-      .endOf("day")
-      .format();
-
-    // send A/P Form emails on the 1st of each month
-    const sendEmailNotificationsDate = moment()
-      .add(1, "month")
-      .startOf("month")
-      .format();
-
-    // create an A/P form
-    await Form.create({
+    // create current months A/P form
+    const currentMonthForm = {
       seasonId,
       startMonth: startMonth.format(),
       endMonth: endMonth.format(),
-      expirationDate,
-      sendEmailNotificationsDate,
+      expirationDate: moment()
+        .startOf("month")
+        .add(6, "days")
+        .endOf("day")
+        .format(),
+      sendEmailNotificationsDate: startMonth.format(),
+      sentEmails: true,
       notes: "",
-    });
+    };
 
-    createdForms = 1;
+    // create next months A/P form
+    const nextMonthForm = {
+      seasonId,
+      startMonth: startOfNextMonth.format(),
+      endMonth: endOfNextMonth.format(),
+      expirationDate: moment()
+        .add(1, "months")
+        .startOf("month")
+        .add(6, "days")
+        .endOf("day")
+        .format(),
+      sendEmailNotificationsDate: startOfNextMonth.format(),
+      sentEmails: false,
+      notes: "",
+    };
+
+    await Form.insertMany([currentMonthForm, nextMonthForm]);
+
+    return console.log(
+      "\n\x1b[7m\x1b[32;1m PASS \x1b[0m \x1b[2mutils/\x1b[0m\x1b[1mseeds.js",
+    );
   } catch (err) {
-    console.log(errorLogger(err));
+    return console.log(
+      `\n\x1b[7m\x1b[31;1m FAIL \x1b[0m \x1b[2mutils/\x1b[0m\x1b[31;1mseedDB.js\x1b[0m\x1b[31m\n${err.toString()}\x1b[0m`,
+    );
   } finally {
-    console.log(eventLogger(events));
-    console.log(formLogger(createdForms));
+    await db.close();
+    process.exit(0);
   }
-};
+})();
