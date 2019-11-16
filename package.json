@@ -15,8 +15,9 @@
     "dev": "better-npm-run dev",
     "db:drop": "better-npm-run db:drop",
     "db:seed": "better-npm-run db:seed",
-    "db:seedDev": "better-npm-run db:seedDev",
-    "db:seedProd": "better-npm-run db:seedProd",
+    "db:seeddev": "better-npm-run db:seeddev",
+    "db:seedprod": "better-npm-run db:seedprod",
+    "db:seedstage": "better-npm-run db:seedstage",
     "pre-commit": "npm run lint --silent && npm run test",
     "start": "better-npm-run start",
     "lint": "lint-staged",
@@ -41,14 +42,21 @@
         "SEED": "true"
       }
     },
-    "db:seedDev": {
+    "db:seeddev": {
       "command": "babel-node ./utils/seedCurrentMonth.js",
       "env": {
         "DATABASE": "sjsitapp-dev-db",
         "NODE_ENV": "development"
       }
     },
-    "db:seedProd": {
+    "db:seedstage": {
+      "command": "babel-node ./utils/seedCurrentMonth.js",
+      "env": {
+        "DATABASE": "sjsitapp-staging-db",
+        "NODE_ENV": "staging"
+      }
+    },
+    "db:seedprod": {
       "command": "babel-node ./utils/seedCurrentMonth.js",
       "env": {
         "DATABASE": "sjsitapp-prod-db",
